@@ -29,10 +29,10 @@ warnings.filterwarnings('ignore')
 
 
 # +
-os.chdir('D:\\데이터\\영업관리프로그램\\영업관리프로그램(16년을 제외한 인하펀칭 전 금액 반영)')
+os.chdir('D:\\데이터\\영업관리프로그램\\영업관리프로그램')
 
 df = pd.DataFrame()
-data = pd.read_excel('2022_자사어드민_인하펀칭조정.xlsx', sheet_name=None)
+data = pd.read_excel('2022_자사어드민.xlsx', sheet_name=None)
 data = pd.concat(data)
 df = df.append(data)
 df = df.reset_index()
