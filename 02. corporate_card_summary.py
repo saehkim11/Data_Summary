@@ -30,7 +30,7 @@ warnings.filterwarnings(action='ignore')
 os.chdir('./\\Data')
 df1 = pd.read_csv('청구내역상세조회.CSV', encoding='cp949')
 
-# 승인내역 카드번화 사용자 매칭
+# 승인내역 카드번호 사용자 매칭
 
 # 승인내역 사용하는 카드사 : 국민카드 , 외환카드
 # kb = pd.read_csv('승인내역상세조회_국민.CSV', encoding='cp949')
