@@ -1,0 +1,90 @@
+import pandas as pd
+import glob
+import os
+
+pd.set_option('display.max_columns', 1000)
+pd.set_option('display.max_rows', 1000)
+
+# 지출결의서 화면 -> pdf -> 엑셀로 다운로드
+data = pd.read_excel('비용_지출결의서.xlsx',sheet_name=None, skiprows=7)
+df = pd.concat(data).reset_index()
+
+cols = ['계정코드 및 계정과목','귀속/코스트센터','차        변', '대','적           요']
+
+df = df[cols]
+
+df = df[df['귀속/코스트센터'].notnull()]
+
+df['계정코드'] = df['계정코드 및 계정과목'].str.split('\n').str[0]
+df['계정명'] = df['계정코드 및 계정과목'].str.split('\n').str[1]
+df.drop('계정코드 및 계정과목',axis=1,inplace=True)
+
+df['귀속'] = df['귀속/코스트센터'].str.split('\n').str[0]
+df['코스트센터'] = df['귀속/코스트센터'].str.split('\n').str[1]
+df.drop('귀속/코스트센터',axis=1,inplace=True)
+
+# 첨부된 엑셀파일 -> 상위 3개 row를 header 지정 나머지를 데이터
+ex = pd.read_excel('비용_엑셀파일.xlsx', skiprows=5,header=[0,1,2])
+ex = ex[:-3]
+ex['사원번호'] = ex['사원번호'].bfill(limit=1).ffill(limit=1)
+
+df_ex = pd.DataFrame()
+
+for i in range(0, 8):
+    ex_cat = pd.concat([ex[i*3:i*3+3].T.reset_index()['level_0'], ex[i*3:i*3+3].T.reset_index()['level_1'], ex[i*3:i*3+3].T.reset_index()['level_2']])
+    ex_num = pd.concat([ex[i*3:i*3+3].T.reset_index()[i*3],ex[i*3:i*3+3].T.reset_index()[i*3+1],ex[i*3:i*3+3].T.reset_index()[i*3+2]])
+    merged_df = pd.concat([ex_cat, ex_num], axis=1)
+    df_ex = pd.concat([df_ex ,merged_df],axis=1)
+
+idx = df_ex.iloc[:,0]
+data = df_ex.iloc[:,1::2]
+df_x1 = pd.concat([idx,data],axis=1)
+df_x1 = df_x1.reset_index(drop=True)
+
+df_x2 = df_x1.set_index(0).T.set_index('사원번호')
+df_x3 = pd.DataFrame(df_x2.stack())
+df_x3 = df_x3.rename(columns={0:'금액'})
+df_x3 = df_x3.reset_index().rename(columns={0:'계정','사원번호':'지점'})
+df_x3['지점'] = df_x3['지점'].str.replace('엔터식스 ','')
+
+제외 = ['기본급','식대', '입 사 일','직  급','장애수당','연차수당','퇴 사 일']
+
+df_x4 = df_x3[~df_x3['계정'].isin(제외)]
+
+# 지출결의서 화면 내용 수정
+
+df.loc[df['코스트센터'].str.contains('온라인'),'귀속'] = '온라인'
+
+df.loc[df['귀속'] == '강변점','귀속'] = '테크노마트점'
+df.loc[df['귀속'] == '안양역점','귀속'] = '안양점'
+
+repl = {'예수금':'','근로소득':'소득세', '근로지방소득':'지방소득세'}
+
+for old, new in repl.items():
+    df['계정명'] = df['계정명'].str.replace(old, new)
+
+cols = ['차변','대변','적요','계정코드','계정명','지점','코스트센터']
+df.columns = cols
+
+df['차변'] = df['차변'].astype(float).fillna(0)
+df['대변'] = df['대변'].astype(float).fillna(0)
+
+df['금액'] = df['차변'] + df['대변']
+
+df_pvt = pd.pivot_table(df, index=['지점','계정명'], values='금액', aggfunc='sum').reset_index()
+
+# 엑셀파일 내용수정
+
+repl = {'장기요양보험료':'건강보험', '건강보험료정산':'건강보험','장기요양보험료정산':'건강보험','건강보험정산':'건강보험',\
+       '연말정산소득세':'소득세','연말정산지방소득세':'지방소득세'}
+
+for old, new in repl.items():
+    df_x4['계정'] = df_x4['계정'].str.replace(old, new)
+
+df_x5 = pd.pivot_table(df_x4,index=['지점','계정'], values='금액', aggfunc='sum').reset_index()
+
+# 지출결의서 화면과 첨부된 엑셀파일을 비교
+
+df_mgd = pd.merge(df_pvt,df_x5, left_on=['지점','계정명'], right_on=['지점','계정'])
+df_mgd['차이'] = df_mgd['금액_x'] - df_mgd['금액_y']
+df_mgd.to_excel('비용_데이터_검토.xlsx')
