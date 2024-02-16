@@ -8,7 +8,7 @@ warnings.filterwarnings(action='ignore')
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.max_rows', 500)
 
-date = '20220831' # 회계일자 입력
+date = 'yyyymmdd' # 회계일자 입력
 
 def sales_closing(target):
     
