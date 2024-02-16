@@ -33,14 +33,14 @@ warnings.filterwarnings('ignore')
 os.chdir('D:\\데이터\\영업관리프로그램\\영업관리프로그램')
 
 df = pd.DataFrame()
-data = pd.read_excel('2022_자사어드민_조정.xlsx', sheet_name=None)
+data = pd.read_excel('yyyy_자사어드민_조정.xlsx', sheet_name=None)
 data = pd.concat(data)
 df = df.append(data)
 df = df.reset_index()
 
 # +
 월 = df['level_0'].unique().tolist()
-연월 = ['2022-01','2022-02','2022-03','2022-04','2022-05']
+연월 = ['yyyy-01','yyyy-02','yyyy-03','yyyy-04','yyyy-05']
 
 mon = pd.DataFrame({
     '월' : 월,
@@ -97,7 +97,7 @@ data = pd.concat(data)
 
 os.chdir('D:\\데이터\\제휴몰 자료\\인터파크')
 인터_PG = pd.DataFrame()
-data = pd.read_excel('인터파크2022년 1~5월.xlsx',skiprows=11 ,sheet_name=None)
+data = pd.read_excel('인터파크yyyy년 1~5월.xlsx',skiprows=11 ,sheet_name=None)
 data = pd.concat(data, ignore_index=True)
 인터_PG = 인터_PG.append(data)
 인터_PG = 인터_PG[인터_PG['구분'] != '합계']
@@ -142,7 +142,7 @@ print(len(어드민_이베이_pvt))
 # +
 os.chdir('D:\\데이터\\제휴몰 자료\\이베이\\옥션')
 옥_PG = pd.DataFrame()
-data = pd.read_excel('2021.09~2022.05_옥션.xlsx', sheet_name=None)
+data = pd.read_excel('yyyy.09~yyyy.05_옥션.xlsx', sheet_name=None)
 data = pd.concat(data)
 옥_PG = 옥_PG.append(data)
 옥_PG = 옥_PG.reset_index()
@@ -157,7 +157,7 @@ data = pd.concat(data)
 # +
 os.chdir('D:\\데이터\\제휴몰 자료\\이베이\\지마켓')
 G_PG = pd.DataFrame()
-data = pd.read_excel('2021.09~2022.05_지마켓.xlsx', sheet_name=None, skiprows=1)
+data = pd.read_excel('yyyy.09~yyyy.05_지마켓.xlsx', sheet_name=None, skiprows=1)
 data = pd.concat(data)
 G_PG = G_PG.append(data)
 G_PG = G_PG.reset_index()
@@ -217,7 +217,7 @@ for i in 이베_현금['주문_상세']:
 어드민_쿠팡_pvt = pd.pivot_table(어드민_쿠팡, index='주문_상세', values='총 금액', aggfunc='sum').reset_index()
 
 # +
-os.chdir('D:\\데이터\\제휴몰 자료\\쿠팡\\2022년')
+os.chdir('D:\\데이터\\제휴몰 자료\\쿠팡\\yyyy년')
 files = os.listdir()
 df = pd.DataFrame()
 
@@ -272,7 +272,7 @@ for i in 쿠팡_현금['주문_상세']:
 print(len(어드민_패플_pvt))
 
 # +
-os.chdir('D:\\데이터\\제휴몰 자료\\패션플러스\\2022년')
+os.chdir('D:\\데이터\\제휴몰 자료\\패션플러스\\yyyy년')
 files = os.listdir()
 df = pd.DataFrame()
 
@@ -368,7 +368,7 @@ dfs = [어드민_패플_pvt, 패플_pvt,패플_현금]
 print(len(어드민_하프_pvt))
 
 # +
-os.chdir('D:\\데이터\\제휴몰 자료\\하프클럽\\2022년')
+os.chdir('D:\\데이터\\제휴몰 자료\\하프클럽\\yyyy년')
 files = os.listdir()
 df = pd.DataFrame()
 
@@ -420,7 +420,7 @@ dfs = [어드민_하프_pvt, 하프_pvt, 하프_현금]
 print(len(어드민_GS_pvt))
 
 # +
-os.chdir('D:\\데이터\\제휴몰 자료\\GS\\2022년')
+os.chdir('D:\\데이터\\제휴몰 자료\\GS\\yyyy년')
 files = os.listdir()
 df = pd.DataFrame()
 
@@ -468,7 +468,7 @@ GS_mg.loc[(GS_mg['총 금액'] > 0) & (GS_mg['판매가격'].isnull())& (GS_mg['
 GS_mg.loc[GS_mg['T/N'].isnull() & (GS_mg['차이'] != 0), 'T/N'] = 'False'
 # -
 
-c1 = GS_mg['귀속월'] != '2022-05'
+c1 = GS_mg['귀속월'] != 'yyyy-05'
 c2 = GS_mg['T/N'] == '미정산'
 
 # 조회대상 = 어드민_GS[어드민_GS['주문_상세'].isin(GS_mg[c1 & c2]['주문_상세'])]
