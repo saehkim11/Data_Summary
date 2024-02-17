@@ -88,3 +88,5 @@ df_x5 = pd.pivot_table(df_x4,index=['지점','계정'], values='금액', aggfunc
 df_mgd = pd.merge(df_pvt,df_x5, left_on=['지점','계정명'], right_on=['지점','계정'])
 df_mgd['차이'] = df_mgd['금액_x'] - df_mgd['금액_y']
 df_mgd.to_excel('비용_데이터_검토.xlsx')
+
+
